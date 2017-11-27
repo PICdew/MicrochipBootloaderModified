@@ -188,7 +188,7 @@ void Bootloader_Initialize ( const BOOTLOADER_INIT *drvBootloaderInit )
     bootloaderData.type = drvBootloaderInit->drvType;
 
     bootloaderData.FlashEraseFunc = (BOOTLOADER_CALLBACK)NULL;
-    bootloaderData.StartAppFunc = (BOOTLOADER_CALLBACK)NULL;
+    bootloaderData.RestoreUserSettingsFunc = (BOOTLOADER_CALLBACK)NULL;
     bootloaderData.BlankCheckFunc = (BOOTLOADER_CALLBACK)NULL;
     bootloaderData.ProgramCompleteFunc = (BOOTLOADER_CALLBACK)NULL;
     bootloaderData.ForceBootloadFunc = (BOOTLOADER_CALLBACK)NULL;
@@ -204,9 +204,9 @@ void BOOTLOADER_FlashEraseRegister(BOOTLOADER_CALLBACK newFunc)
     bootloaderData.FlashEraseFunc = newFunc;
 }
 
-void BOOTLOADER_StartAppRegister(BOOTLOADER_CALLBACK newFunc)
+void BOOTLOADER_UserSettingsRestoreRegister(BOOTLOADER_CALLBACK newFunc)
 {
-    bootloaderData.StartAppFunc = newFunc;
+    bootloaderData.RestoreUserSettingsFunc = newFunc;
 }
 
 void BOOTLOADER_BlankCheckRegister(BOOTLOADER_CALLBACK newFunc)
@@ -338,7 +338,8 @@ void Bootloader_Tasks ()
     case BOOTLOADER_WAIT_FOR_NVM:
        if (PLIB_NVM_FlashWriteCycleHasCompleted(NVM_ID_0))
        {
-         
+           if(bootloaderData.RestoreUserSettingsFunc != NULL)
+               bootloaderData.RestoreUserSettingsFunc();
          bootloaderData.currentState = BOOTLOADER_SEND_RESPONSE;
          PLIB_NVM_MemoryModifyInhibit(NVM_ID_0);
        }
@@ -390,8 +391,6 @@ void Bootloader_Tasks ()
             /* Do a soft reset in order to reset peripherals */
             /* Disable Global Interrupts */
             PLIB_INT_Disable(INT_ID_0);
-            if (bootloaderData.StartAppFunc != NULL)
-                bootloaderData.StartAppFunc();
             fptr = (void (*)(void))BOOTLOADER_RESET_ADDRESS;
             fptr();
             break;

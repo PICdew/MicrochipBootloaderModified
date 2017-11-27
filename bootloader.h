@@ -318,7 +318,8 @@ typedef struct
     BOOTLOADER_CALLBACK FlashEraseFunc;
     
     /* Callback for Start App function */
-    BOOTLOADER_CALLBACK StartAppFunc;
+    
+    BOOTLOADER_CALLBACK RestoreUserSettingsFunc;
     
     /* Callback for Blank Check function */
     BOOTLOADER_CALLBACK BlankCheckFunc;
@@ -561,7 +562,7 @@ bool BootloaderProgramExistsCheck(void);
 #endif
 
 void BOOTLOADER_FlashEraseRegister(BOOTLOADER_CALLBACK newFunc);
-void BOOTLOADER_StartAppRegister(BOOTLOADER_CALLBACK newFunc);
+void BOOTLOADER_UserSettingsRestoreRegister(BOOTLOADER_CALLBACK newFunc);
 void BOOTLOADER_BlankCheckRegister(BOOTLOADER_CALLBACK newFunc);
 void BOOTLOADER_ProgramCompleteRegister(BOOTLOADER_CALLBACK newFunc);
 void BOOTLOADER_ForceBootloadRegister(BOOTLOADER_CALLBACK newFunc);
